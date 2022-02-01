@@ -1,11 +1,25 @@
-const ControlDePresupuesto = ({presupuesto}) => {
+import { useEffect, useState } from "react";
+
+const ControlDePresupuesto = ({presupuesto, gastos}) => {
+
+  const [disponible, setDisponible] = useState(0);
+  const [gastado, setGastado] = useState(0);
+  
+  useEffect(() => {
+  const totalGastado = gastos.reduce((total, gasto) => gasto.cantidad + total, 0)
+  
+  console.log(totalGastado);
+  
+  setGastado(totalGastado)
+  setDisponible(presupuesto - totalGastado)
+  
+  }, [gastos]);
 
 var formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   });
   
- 
 
   return (
     <div className="contenedor-presupuesto contenedor sombra dos-columnas">
@@ -18,11 +32,11 @@ var formatter = new Intl.NumberFormat('en-US', {
         </p>
 
         <p>
-          <span>Disponible:</span> { formatter.format(0)} 
+          <span>Disponible:</span> { formatter.format(disponible)} 
         </p>        
         
         <p>
-          <span>Gastado:</span> { formatter.format(0)} 
+          <span>Gastado:</span> { formatter.format(gastado)} 
         </p>
 
       </div>
