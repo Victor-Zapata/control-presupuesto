@@ -6,9 +6,13 @@ import { generarId } from "./helpers";
 import IconoNuevoGasto from "./img/nuevo-gasto.svg";
 
 function App() {
-  const [gastos, setGastos] = useState([]);
+  const [gastos, setGastos] = useState(
+    localStorage.getItem('gastos') ? JSON.parse(localStorage.getItem('gastos')) : []
+  );
 
-  const [presupuesto, setPresupuesto] = useState("");
+  const [presupuesto, setPresupuesto] = useState(
+    Number(localStorage.getItem('presupuesto')) ?? 0
+  );
   const [isValidPresupuesto, setIsValidPresupuesto] = useState(false);
 
   const [modal, setModal] = useState(false);
@@ -19,16 +23,32 @@ function App() {
   useEffect(() => {
     if (Object.keys(gastoEditar).length > 0) {
       setModal(true);
-  
+
       setTimeout(() => {
         setAnimarModal(true);
       }, 300);
     }
   }, [gastoEditar]);
 
+  useEffect(() => {
+    localStorage.setItem("presupuesto", presupuesto ?? 0);
+  }, [presupuesto]);
+
+  useEffect(() => {
+    localStorage.setItem("gastos", JSON.stringify(gastos)  ?? []);
+  }, [gastos]);
+
+  useEffect(() => {
+    const presupuestoLS = Number(localStorage.getItem('presupuesto')) ?? 0;
+    if(presupuestoLS > 0) {
+      setIsValidPresupuesto(true)
+    }
+  }, []);
+  
+
   const handleNuevoGasto = () => {
     setModal(true);
-    setGastoEditar({})
+    setGastoEditar({});
 
     setTimeout(() => {
       setAnimarModal(true);
@@ -36,18 +56,18 @@ function App() {
   };
 
   const guardarGasto = (gasto) => {
-    if(gasto.id) {
+    if (gasto.id) {
       //Actualizar
-      const gastosActualizados = gastos.map( gastoState => gastoState.id 
-        === gasto.id ? gasto : gastoState)
-        setGastos(gastosActualizados)
-        setGastoEditar({})
+      const gastosActualizados = gastos.map((gastoState) =>
+        gastoState.id === gasto.id ? gasto : gastoState
+      );
+      setGastos(gastosActualizados);
+      setGastoEditar({});
     } else {
-        gasto.id = generarId();
-        gasto.fecha = new Date();
-        setGastos([...gastos, gasto]);
+      gasto.id = generarId();
+      gasto.fecha = new Date();
+      setGastos([...gastos, gasto]);
     }
-
 
     setAnimarModal(false);
     setTimeout(() => {
@@ -56,9 +76,9 @@ function App() {
   };
 
   const eliminarGasto = (id) => {
-    const gastosActualizados = gastos.filter( gasto => gasto.id !== id)
-    setGastos(gastosActualizados)
-  }
+    const gastosActualizados = gastos.filter((gasto) => gasto.id !== id);
+    setGastos(gastosActualizados);
+  };
 
   return (
     <div className={modal ? "fijar" : ""}>
@@ -73,10 +93,10 @@ function App() {
       {isValidPresupuesto && (
         <>
           <main>
-            <ListadoGastos 
-            gastos={gastos} 
-            setGastoEditar={setGastoEditar} 
-            eliminarGasto={eliminarGasto}
+            <ListadoGastos
+              gastos={gastos}
+              setGastoEditar={setGastoEditar}
+              eliminarGasto={eliminarGasto}
             />
           </main>
           <div className="nuevo-gasto">
